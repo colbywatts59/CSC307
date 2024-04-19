@@ -7,20 +7,42 @@ import Form from "./Form";
 function MyApp() {
   const [characters, setCharacters] = useState([]);
 
-  function removeOneCharacter(index) {
-    const updated = characters.filter((character, i) => {
-      return i !== index;
-    });
-    setCharacters(updated);
+  function delUser(index) {
+    const id = characters[index].id;
+    const promise = fetch(`http://localhost:8000/users/${id}`, {
+      method: "DELETE"
+    })
+    .then(response => {
+      if(response.ok) {
+        setCharacters((oldCharacters) => {
+          return oldCharacters.filter((character) => character.id !== id);
+        });
+      } else {
+        console.log("Failed to delete user")
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+    })
   }
 
   function updateList(person) { 
+    console.log(characters);
     postUser(person)
-      .then(() => setCharacters([...characters, person]))
-      .catch((error) => {
-        console.log(error);
+      .then(response => {
+        if (response.status === 201) {
+          return response.json();
+        }
       })
-}
+      .then(newUser => { 
+        setCharacters([...characters, newUser]);
+        console.log(characters);
+      })
+      .catch(error => {
+        console.error('Error updating character:', error);
+      });
+  }
+  
   function fetchUsers() {
     const promise = fetch("http://localhost:8000/users");
     return promise;
@@ -49,14 +71,12 @@ function MyApp() {
     <div className="container">
       <Table
         characterData={characters}
-        removeCharacter={removeOneCharacter}
+        removeCharacter={delUser}
       />
       <Form handleSubmit={updateList} />
     </div>
   );
 
 }
-
-  
 
 export default MyApp;
