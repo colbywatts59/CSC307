@@ -8,14 +8,14 @@ function MyApp() {
   const [characters, setCharacters] = useState([]);
 
   function delUser(index) {
-    const id = characters[index].id;
-    const promise = fetch(`http://localhost:8000/users/${id}`, {
+    const _id = characters[index]._id;
+    const promise = fetch(`http://localhost:8000/users/${_id}`, {
       method: "DELETE"
     })
     .then(response => {
       if(response.ok) {
         setCharacters((oldCharacters) => {
-          return oldCharacters.filter((character) => character.id !== id);
+          return oldCharacters.filter((character) => character._id !== _id);
         });
       } else {
         console.log("Failed to delete user")
